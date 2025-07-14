@@ -1,61 +1,77 @@
-import os
+#core/classifier.pyimport os
 import json
 import re
 import openai
+import requests
+import time
+from config.settings import GPT_MODEL, GEMINI_MODEL, OLLAMA_MODEL
 
-# Optional: import Gemini client
 try:
-    from vertexai.language_models import TextGenerationModel
-    import vertexai
-    _HAS_GEMINI = True
+    from ollama import Client
+    client = Client(host="http://localhost:11434")
+    _HAS_OLLAMA = True
 except ImportError:
-    _HAS_GEMINI = False
+    _HAS_OLLAMA = False
 
-# Prompt for both providers
 _BASE_PROMPT = """
 You are a public-health fact-checking assistant.
 Given a transcript, choose exactly one label from:
 [NO_MISINFO, MISINFO, DEBUNKING, CANNOT_RECOGNIZE]
 Then output up to 10 comma-separated keywords that summarize the content.
 
+Also provide a confidence score between 0 and 1 for your prediction.
+
 Respond in JSON:
-{"label":"...", "keywords":["kw1","kw2",...]}
+{"label":"...", "keywords":["kw1","kw2",...], "confidence": 0.87}
 """
 
-def classify_transcript(text: str, provider: str = "OpenAI", model: str = "gpt-3.5-turbo") -> dict:
+def extract_json_block(text: str) -> dict:
+    try:
+        matches = re.findall(r"{.*?}", text, re.DOTALL)
+        for match in matches:
+            try:
+                return json.loads(match)
+            except json.JSONDecodeError:
+                continue
+    except Exception as e:
+        raise RuntimeError(f"Failed to parse JSON: {e}")
+    raise ValueError("No valid JSON object found in the response.")
+
+def classify_transcript(text, provider="OpenAI", model=None, api_key=None) -> dict:
     prompt = _BASE_PROMPT + "\n\n" + text
+    start_time = time.time()
 
     if provider == "Gemini":
-        if not _HAS_GEMINI:
-            raise RuntimeError("Gemini SDK not installed. Please install vertexai.")
+        key = api_key or os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY")
+        if not key:
+            raise RuntimeError("No Gemini API key found.")
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{GEMINI_MODEL}:generateContent"
+        body = {"contents": [{"role": "user", "parts": [{"text": prompt}]}]}
+        resp = requests.post(url, params={"key": key}, json=body, timeout=10)
+        resp.raise_for_status()
+        content = resp.json()["candidates"][0]["content"]["parts"][0]["text"]
 
-        api_key = os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY")
-        if not api_key:
-            raise RuntimeError("No Gemini API key found in environment.")
+    elif provider == "Ollama":
+        if not _HAS_OLLAMA:
+            raise RuntimeError("Ollama not installed.")
+        response = client.chat(model=OLLAMA_MODEL, messages=[{"role": "user", "content": prompt}])
+        content = response["message"]["content"]
 
-        os.environ["GOOGLE_API_KEY"] = api_key  # Gemini requires it to be set like this
-
-        # Initialize Gemini model
-        model = TextGenerationModel.from_pretrained("text-bison")
-        prediction = model.predict(prompt)
-        content = getattr(prediction, "text", str(prediction))
-
-    else:  # OpenAI
-        api_key = os.environ.get("OPENAI_API_KEY")
-        if not api_key:
-            raise RuntimeError("No OpenAI API key found in environment.")
-
-        openai.api_key = api_key
+    else:
+        key = api_key or os.environ.get("OPENAI_API_KEY")
+        if not key:
+            raise RuntimeError("No OpenAI API key found.")
+        openai.api_key = key
         completion = openai.ChatCompletion.create(
-            model=model,
+            model=model or GPT_MODEL,
             messages=[
                 {"role": "system", "content": _BASE_PROMPT},
                 {"role": "user", "content": text}
             ],
-            temperature=0
+            temperature=0,
         )
         content = completion.choices[0].message.content
 
-    # Clean and parse
-    cleaned = re.sub(r"```json|```", "", content).strip()
-    return json.loads(cleaned)
+    result = extract_json_block(content)
+    result["time_taken_secs"] = round(time.time() - start_time, 2)
+    return result
