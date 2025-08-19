@@ -98,7 +98,7 @@ model_name: mistral     # Local model (via Ollama or API)
 temperature: 0.0
 
 provider: Local
-
+```
 
 ### 2. Run Experiment (Batch Inference)
 
