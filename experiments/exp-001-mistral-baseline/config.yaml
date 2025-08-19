@@ -1,0 +1,7 @@
+input_dir: data/videos
+out: experiments/exp-001-mistral-baseline/results.csv
+prompt: baseline          # {baseline, fewshot, reasoned}
+model_name: mistral       # ollama model name
+temperature: 0.0
+provider: Local           # use local ASR
+notes: "Mistral baseline prompt on current sample clips."

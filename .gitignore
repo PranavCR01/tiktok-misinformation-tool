@@ -1,17 +1,45 @@
-# Python
+# ---- Python
 __pycache__/
-*.py[cod]
-*.env
+*.pyc
 .venv/
+.env
+*.log
 
-# VSCode
-.vscode/
-
-# Streamlit secrets
+# ---- Streamlit secrets
 .streamlit/secrets.toml
 
-# Mac
-.DS_Store
+# ---- Data & media (exclude big/raw media)
+# keep results/plots/READMEs/configs inside experiments
+data/**
+experiments/**/videos/**
+experiments/**/raw/**
+experiments/**/tmp/**
+*.mp4
+*.mp3
+*.wav
+*.m4a
 
-# Logs
-*.log
+# ---- Model caches / heavy artifacts
+.huggingface/
+huggingface/
+cache/
+*.bin
+*.pt
+*.onnx
+ctranslate2_models/
+whisper/**
+faster-whisper/**
+moviepy_temp/
+
+# ---- Editors / OS
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# ---- allowlists (keep experiment outputs )
+!experiments/**/config.yaml
+!experiments/**/README.md
+!experiments/**/NOTES.md
+!experiments/**/results.csv
+!experiments/**/plots/**
