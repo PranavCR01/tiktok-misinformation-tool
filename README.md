@@ -105,14 +105,14 @@ provider: Local
 python scripts/run_mistral_batch.py --config experiments/exp-001-mistral-baseline/config.yaml
 
 * Produces results.csv with columns:
-- prompt_id
-- model_name
-- video_file
-- transcript
-- label
-- keywords
-- confidence_score
-- time_taken_sec
+  - prompt_id
+  - model_name
+  - video_file
+  - transcript
+  - label
+  - keywords
+  - confidence_score
+  - time_taken_sec
 
 
 3. Analyze Results
@@ -121,14 +121,14 @@ python scripts/analyze_experiment.py --exp-dir experiments/exp-001-mistral-basel
 
 * Produces in the same folder:
 * Plots:
-1. confidence_hist.png
-2. label_distribution.png
-3. latency_hist.png
+  1. confidence_hist.png
+  2. label_distribution.png
+  3. latency_hist.png
 
 * Aggregated keyword stats:
-
-1. keywords_top.csv
-2. keywords_top.png
+  
+  1. keywords_top.csv
+  2. keywords_top.png
 
 * Auto-generated README.md with summary
 
@@ -136,18 +136,18 @@ python scripts/analyze_experiment.py --exp-dir experiments/exp-001-mistral-basel
 
 Instead of running ad-hoc tests, this framework allows:
 
-* Reproducibility: Every run is logged in its own folder with configs + outputs.
-* Comparability: Run baseline, few-shot, and reasoned prompts across models.
-* Scalability: Teammates can plug in different LLMs (e.g., LLaMA, Gemma) without breaking structure.
-* Documentation: Auto-generated experiment READMEs ensure no results are lost.
+  * Reproducibility: Every run is logged in its own folder with configs + outputs.
+  * Comparability: Run baseline, few-shot, and reasoned prompts across models.
+  * Scalability: Teammates can plug in different LLMs (e.g., LLaMA, Gemma) without breaking structure.
+  * Documentation: Auto-generated experiment READMEs ensure no results are lost.
 
 ### Team Notes – How to Experiment
 
 * My setup (Pranav): Running with Mistral locally via Ollama.
 * Teammates (Tanmay, Atharva):
-1. Copy an existing experiment folder → rename (e.g., exp-002-llama-fewshot)
-2. Edit config.yaml → change model_name to your local model (llama, gemma, etc.)
-3. Re-run steps 2 & 3 above.
+  1. Copy an existing experiment folder → rename (e.g., exp-002-llama-fewshot)
+  2. Edit config.yaml → change model_name to your local model (llama, gemma, etc.)
+  3. Re-run steps 2 & 3 above.
 
 * Important: Do not change core files (pages/, scripts/) → keep framework consistent.
 
@@ -156,5 +156,4 @@ Instead of running ad-hoc tests, this framework allows:
 1. Run your batch experiment with run_mistral_batch.py.
 2. Analyze + auto-document with analyze_experiment.py.
 3. Each experiment folder is a self-contained record: inputs, outputs, configs, plots, and docs.
-
 4. This ensures our research is organized, collaborative, and reproducible.
