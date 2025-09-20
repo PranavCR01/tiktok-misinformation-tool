@@ -79,6 +79,43 @@ TIKTOK-MISINFO-APP/
 ```
 ---
 
+### Code File Responsibilities
+## Core Streamlit App (pages/)
+
+- **pages/2_Analysis.py** : Main Streamlit UI for uploading videos, running transcription + analysis, and visualizing results.
+
+- **pages/processes/analysis.py** : LLM classification logic (Ollama, OpenAI, Azure). Parses JSON outputs and returns labels, keywords, and confidence.
+
+- **pages/processes/transcription.py** : Handles speech-to-text (ASR) with:
+
+  - OpenAI Whisper API
+  - Local Faster-Whisper via CTranslate2
+
+- **pages/processes/api_helpers.py** : API utilities: key validation, model dropdowns, Ollama detection, token limits.
+
+- **pages/processes/utils.py** : Helper functions: session reset, token counting, file management, and CSV/keyword exports.
+
+
+## Experimentation Framework (scripts/)
+
+- **scripts/run_mistral_batch.py** : Runs transcription + classification in batch mode using settings from config.yaml. Writes results.csv.
+
+- **scripts/analyze_experiment.py** : Post-analysis script that:
+  - Generates plots (label distribution, confidence, latency, top keywords).
+  - Produces an auto-summary README.md inside each experiment folder.
+
+## Supporting Files
+
+- experiments/ – Self-contained experiment folders with configs, outputs, plots, and auto-generated docs.
+- data/ – Input TikTok videos/audio.
+- lib/ – Reserved for external JS/CSS libs.
+- User_Guide.py – Documentation helper for end-users.
+- CHANGELOG.md – Tracks repo changes.
+- requirements.txt / packages.txt – Dependencies for reproducibility.
+
+---
+
+
 ## Workflow
 
 ### 1. Prepare Config
