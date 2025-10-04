@@ -1,0 +1,7 @@
+input_dir: data/videos
+out: experiments/exp-004-mistral-fewshot/results.csv
+prompt: fewshot      # Few-shot examples to calibrate model judgments
+model_name: mistral
+temperature: 0.0
+provider: Local
+notes: "Few-shot prompt experiment - include calibration examples to improve label and keyword extraction quality."

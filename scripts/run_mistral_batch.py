@@ -79,6 +79,80 @@ REASONED_SUFFIX = """
 Think step-by-step but only return the final JSON (do not include your reasoning).
 """
 
+COT_SUFFIX = """
+Before making your final classification, work through this Chain of Thought process:
+
+1. CONTENT ANALYSIS: What is the main topic and claims being made in this transcript?
+2. SOURCE EVALUATION: Are there any credentials, expertise, or authority indicators mentioned?
+3. CLAIM VERIFICATION: Are specific facts, statistics, or scientific claims made that can be verified?
+4. CONTEXT ASSESSMENT: Is this content:
+   - Spreading potentially harmful misinformation?
+   - Debunking/correcting misinformation with facts?
+   - Discussing health topics without making false claims?
+   - Unrelated to health misinformation?
+
+5. FINAL REASONING: Based on the above analysis, what is the most appropriate classification?
+
+Think through each step carefully, then respond ONLY with the final JSON object (do not include your reasoning steps in the response):
+
+{
+  "label": "DEBUNKING|MISINFO|NO_MISINFO|CANNOT_RECOGNIZE",
+  "keywords": ["kw1","kw2", "..."],
+  "confidence": 0.87
+}
+"""
+
+ENHANCED_COT_SUFFIX = """
+Before making your final classification, work through this comprehensive Chain of Thought process:
+
+1. TRANSCRIPT UNDERSTANDING:
+   - What is the main topic being discussed?
+   - Who is speaking (if identifiable)?
+   - What is the tone and context of the message?
+
+2. CLAIM IDENTIFICATION:
+   - List all health-related claims made in the transcript
+   - Identify any statistics, numbers, or specific facts mentioned
+   - Note any medical or scientific terminology used
+
+3. SOURCE CREDIBILITY ASSESSMENT:
+   - Are there any credentials, qualifications, or expertise indicators mentioned?
+   - Does the speaker cite any sources, studies, or authorities?
+   - Is this presented as personal opinion or authoritative fact?
+
+4. FACT-CHECKING ANALYSIS:
+   - Do the claims align with established medical/scientific consensus?
+   - Are there any obvious red flags or conspiracy theory indicators?
+   - Are the claims specific enough to be verifiable?
+
+5. HARM POTENTIAL EVALUATION:
+   - Could believing this information lead to harmful health decisions?
+   - Is this content potentially dangerous if taken as medical advice?
+   - Does it discourage seeking proper medical care?
+
+6. CONTENT CATEGORIZATION:
+   - MISINFO: Contains false/misleading health information that could cause harm
+   - DEBUNKING: Actively correcting misinformation with factual information
+   - NO_MISINFO: Health-related but factual, neutral, or clearly opinion-based
+   - CANNOT_RECOGNIZE: Insufficient information or unclear content
+
+7. CONFIDENCE ASSESSMENT:
+   - How certain are you about this classification? (0.0 = very uncertain, 1.0 = very certain)
+   - Consider factors like clarity of claims, availability of evidence, potential ambiguity
+
+8. KEYWORD EXTRACTION:
+   - Identify 3-7 key terms that best represent the main health topics discussed
+   - Focus on medical conditions, treatments, substances, or health practices mentioned
+
+Think through each step systematically, then respond ONLY with the final JSON object:
+
+{
+  "label": "DEBUNKING|MISINFO|NO_MISINFO|CANNOT_RECOGNIZE",
+  "keywords": ["kw1","kw2", "..."],
+  "confidence": 0.87
+}
+"""
+
 
 def build_prompt(kind: str) -> str:
     if kind == "baseline":
@@ -87,6 +161,10 @@ def build_prompt(kind: str) -> str:
         return BASE_PROMPT + "\n" + FEWSHOT_SUFFIX
     if kind == "reasoned":
         return BASE_PROMPT + "\n" + REASONED_SUFFIX
+    if kind == "cot":
+        return BASE_PROMPT + "\n" + COT_SUFFIX
+    if kind == "enhanced_cot":
+        return BASE_PROMPT + "\n" + ENHANCED_COT_SUFFIX
     return BASE_PROMPT
 
 

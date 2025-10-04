@@ -1,0 +1,7 @@
+input_dir: data/videos
+out: experiments/exp-003-mistral-enhanced-cot/results.csv
+prompt: enhanced_cot      # Enhanced Chain of Thought prompt with 8-step reasoning
+model_name: mistral       # ollama model name
+temperature: 0.0
+provider: Local           # use local ASR
+notes: "Enhanced Chain of Thought prompt experiment - comprehensive 8-step reasoning process for improved misinformation detection accuracy."

@@ -1,0 +1,7 @@
+input_dir: data/videos
+out: experiments/exp-002-mistral-cot/results.csv
+prompt: cot               # Chain of Thought prompt
+model_name: mistral       # ollama model name
+temperature: 0.0
+provider: Local           # use local ASR
+notes: "Chain of Thought prompt experiment - step-by-step reasoning for misinformation detection."

@@ -1,0 +1,1 @@
+python scripts/run_mistral_batch.py experiments/exp-003-mistral-enhanced-cot/config.yaml
