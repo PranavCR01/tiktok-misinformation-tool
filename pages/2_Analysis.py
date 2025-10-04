@@ -158,6 +158,15 @@ def _draw_confidence_and_latency(df: pd.DataFrame):
                 st.altair_chart(chart_lat, use_container_width=True)
 
 
+def _highlight_evidence(transcript: str, evidence: list[str]) -> str:
+    """Bold the evidence snippets inside the transcript for quick scanning."""
+    highlighted = transcript or ""
+    for snippet in evidence or []:
+        if snippet and snippet in highlighted:
+            highlighted = highlighted.replace(snippet, f"**{snippet}**")
+    return highlighted
+
+
 def main():
     st.title("Automatic Misinformation Analysis")
 
@@ -308,6 +317,8 @@ def main():
                         "confidence_score": round(
                             float(result.get("confidence", 0.0)), 2
                         ),
+                        "explanation": result.get("explanation", ""),
+                        "evidence_sentences": result.get("evidence_sentences", []),
                         "time_taken_sec": result.get("time_taken_secs"),
                     }
                 )
@@ -316,14 +327,39 @@ def main():
                 )
 
         df = pd.DataFrame(rows)
+        if not df.empty:
+            df_display = df.copy()
+            df_display["evidence_sentences"] = df_display["evidence_sentences"].apply(
+                lambda items: " | ".join(items) if isinstance(items, list) else items
+            )
+        else:
+            df_display = df
         st.subheader("Results")
-        st.dataframe(df, use_container_width=True)
+        st.dataframe(df_display, use_container_width=True)
+
+        if not df.empty:
+            st.subheader("Explainability Details")
+            for _, row in df.iterrows():
+                evidence = row.get("evidence_sentences") or []
+                with st.expander(f"{row['video_file']}"):
+                    st.markdown(
+                        f"**Label:** {row['label']}  •  **Confidence:** {row['confidence_score']}"
+                    )
+                    if row.get("explanation"):
+                        st.markdown(f"**Explanation:** {row['explanation']}")
+                    if evidence:
+                        st.markdown("**Evidence snippets:**")
+                        for snippet in evidence:
+                            st.markdown(f"- {snippet}")
+                    highlighted = _highlight_evidence(row.get("transcript", ""), evidence)
+                    st.markdown("**Transcript (evidence bolded):**")
+                    st.markdown(highlighted.replace("\n", "  \n"))
 
         st.subheader("Visualizations")
         _draw_label_pie(df)
         _draw_confidence_and_latency(df)
 
-        csv = convert_df(df)
+        csv = convert_df(df_display)
         stamp = datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
         st.download_button(
             "Download results as CSV",

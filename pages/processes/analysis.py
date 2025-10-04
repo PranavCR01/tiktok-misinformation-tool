@@ -18,17 +18,21 @@ except Exception:
 _JSON_INSTRUCTIONS = """
 You are a public-health fact-checking assistant.
 
-Given the transcript below, do three things:
+Given the transcript below, do these tasks and then respond ONLY as JSON (no markdown, no prose):
 1) Choose exactly one label from this set:
    [NO_MISINFO, MISINFO, DEBUNKING, CANNOT_RECOGNIZE]
 2) Extract up to 10 keywords that summarize the content (list, not strings with commas).
 3) Provide a confidence score between 0 and 1.
+4) Provide a short explanation (2-4 sentences) describing why you chose that label.
+5) Provide 1-3 exact quotes from the transcript (verbatim sentences or clauses) that most influenced your decision.
 
-Respond ONLY as a single JSON object, no prose, in the form:
+Return a single JSON object with this shape:
 {
   "label": "DEBUNKING|MISINFO|NO_MISINFO|CANNOT_RECOGNIZE",
   "keywords": ["kw1","kw2", "..."],
-  "confidence": 0.87
+  "confidence": 0.87,
+  "explanation": "...",
+  "evidence_sentences": ["...", "..."]
 }
 """
 
@@ -36,7 +40,13 @@ Respond ONLY as a single JSON object, no prose, in the form:
 def _extract_json_block(text: str) -> dict:
     """Find the first JSON object in an LLM response and parse it."""
     if not isinstance(text, str):
-        return {"label": "CANNOT_RECOGNIZE", "keywords": [], "confidence": 0.5}
+        return {
+            "label": "CANNOT_RECOGNIZE",
+            "keywords": [],
+            "confidence": 0.5,
+            "explanation": "",
+            "evidence_sentences": [],
+        }
 
     for match in re.finditer(r"\{.*\}", text, flags=re.DOTALL):
         try:
@@ -48,11 +58,35 @@ def _extract_json_block(text: str) -> dict:
             if isinstance(kws, str):
                 kws = [k.strip() for k in kws.split(",") if k.strip()]
             conf = float(obj.get("confidence", 0.5))
-            return {"label": label, "keywords": kws, "confidence": conf}
+            explanation = str(obj.get("explanation", "")).strip()
+            evidence_raw = obj.get("evidence_sentences", [])
+            if isinstance(evidence_raw, str):
+                evidence = [
+                    item.strip()
+                    for item in evidence_raw.split("\n")
+                    if item.strip()
+                ]
+            elif isinstance(evidence_raw, list):
+                evidence = [str(item).strip() for item in evidence_raw if str(item).strip()]
+            else:
+                evidence = []
+            return {
+                "label": label,
+                "keywords": kws,
+                "confidence": conf,
+                "explanation": explanation,
+                "evidence_sentences": evidence,
+            }
         except Exception:
             continue
 
-    return {"label": "CANNOT_RECOGNIZE", "keywords": [], "confidence": 0.5}
+    return {
+        "label": "CANNOT_RECOGNIZE",
+        "keywords": [],
+        "confidence": 0.5,
+        "explanation": "",
+        "evidence_sentences": [],
+    }
 
 
 def _token_limit_warning(transcript: str, model: str, container):
@@ -109,6 +143,8 @@ def analyze(transcript, model, client, container):
             "label": "CANNOT_RECOGNIZE",
             "keywords": [],
             "confidence": 0.0,
+            "explanation": "",
+            "evidence_sentences": [],
             "time_taken_secs": round(time.time() - start, 2),
         }
 
@@ -143,6 +179,8 @@ def analyze2(transcript, client, container, model):
             "label": "CANNOT_RECOGNIZE",
             "keywords": [],
             "confidence": 0.0,
+            "explanation": "",
+            "evidence_sentences": [],
             "time_taken_secs": round(time.time() - start, 2),
         }
 
@@ -157,7 +195,7 @@ def analyze2(transcript, client, container, model):
 def analyze_local_mistral(transcript: str, container, model_name: str = "mistral"):
     """
     Calls local Ollama (http://localhost:11434) chat API with Mistral and returns:
-    {label, keywords[], confidence, time_taken_secs}
+    {label, keywords[], confidence, explanation, evidence_sentences[], time_taken_secs}
     """
     start = time.time()
     try:
@@ -170,6 +208,8 @@ def analyze_local_mistral(transcript: str, container, model_name: str = "mistral
             "label": "CANNOT_RECOGNIZE",
             "keywords": [],
             "confidence": 0.5,
+            "explanation": "",
+            "evidence_sentences": [],
             "time_taken_secs": round(time.time() - start, 2),
         }
 
@@ -203,5 +243,7 @@ def analyze_local_mistral(transcript: str, container, model_name: str = "mistral
             "label": "CANNOT_RECOGNIZE",
             "keywords": [],
             "confidence": 0.5,
+            "explanation": "",
+            "evidence_sentences": [],
             "time_taken_secs": round(time.time() - start, 2),
         }
