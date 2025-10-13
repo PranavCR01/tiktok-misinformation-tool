@@ -1,0 +1,1 @@
+python scripts/run_mistral_batch.py --config experiments/exp-test-setup/config.yaml

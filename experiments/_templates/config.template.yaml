@@ -1,0 +1,20 @@
+# Experiment Configuration Template
+# Copy this file to your experiment folder and customize
+
+input_dir: data/videos           # Where your test videos are located
+out: experiments/YOUR-EXP-NAME/results.csv  # Output CSV path
+prompt: baseline                 # Options: baseline | fewshot | reasoned
+model_name: mistral              # For Ollama: mistral | llama2 | gemma | etc.
+temperature: 0.0                 # 0.0 = deterministic, higher = more creative
+provider: Local                  # Local (Ollama) | OpenAI | Azure
+notes: "Brief description of experiment goals"
+
+# Prompt Types Explained:
+# - baseline: Standard classification prompt
+# - fewshot: Includes example classifications for calibration
+# - reasoned: Asks LLM to think step-by-step (may be slower)
+
+# Temperature Guidelines:
+# - 0.0: Reproducible, deterministic (recommended for experiments)
+# - 0.3-0.7: Balanced creativity
+# - 1.0+: More creative but less consistent

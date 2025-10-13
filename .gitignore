@@ -43,3 +43,11 @@ Thumbs.db
 !experiments/**/NOTES.md
 !experiments/**/results.csv
 !experiments/**/plots/**
+
+# ---- EasyOCR model cache (added for OCR module)
+.EasyOCR/
+*.pth
+
+# ---- Environment-specific documentation (user-specific)
+ENVIRONMENT_SETUP.md
+QUICKSTART.txt
