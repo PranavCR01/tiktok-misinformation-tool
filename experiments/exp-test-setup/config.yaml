@@ -1,0 +1,7 @@
+input_dir: data/videos
+out: experiments/exp-test-setup/results.csv
+prompt: baseline
+model_name: mistral
+temperature: 0.0
+provider: Local
+notes: "Test experiment to verify complete pipeline setup"

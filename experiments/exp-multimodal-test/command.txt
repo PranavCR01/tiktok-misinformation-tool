@@ -1,0 +1,1 @@
+python scripts/run_multimodal_batch.py --config experiments/exp-multimodal-test/config.yaml

@@ -1,0 +1,14 @@
+# Multimodal Experiment Configuration
+input_dir: data/videos
+out: experiments/exp-multimodal-test/results.csv
+prompt: baseline
+model_name: mistral
+temperature: 0.0
+
+# Multimodal settings
+include_audio: true          # Extract speech transcript
+include_visual: true         # Extract on-screen text (OCR)
+ocr_languages: ['en']        # OCR language detection
+ocr_sample_fps: 1.0          # Sample 1 frame per second for OCR
+
+notes: "Test multimodal extraction: audio (ASR) + visual (OCR) combined"
