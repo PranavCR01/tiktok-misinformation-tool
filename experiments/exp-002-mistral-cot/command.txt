@@ -1,0 +1,31 @@
+#!/bin/bash
+# Run the Chain of Thought experiment
+
+echo "Starting Chain of Thought (COT) experiment..."
+echo "Experiment: exp-002-mistral-cot"
+echo "Model: mistral"
+echo "Prompt: cot"
+echo "Temperature: 0.0"
+echo ""
+
+cd /Users/rishabh/dev/tiktok-misinformation-tool
+
+# Run the batch processing
+python scripts/run_mistral_batch.py \
+    --config experiments/exp-002-mistral-cot/config.yaml \
+    --verbose
+
+echo ""
+echo "Analyzing results..."
+
+# Generate analysis plots and report
+python scripts/analyze_experiment.py \
+    --exp-dir experiments/exp-002-mistral-cot \
+    --top-k 20
+
+echo ""
+echo "Experiment complete! Check experiments/exp-002-mistral-cot/ for results."
+echo "Files generated:"
+echo "- results.csv (raw results)"
+echo "- README.md (analysis report)"
+echo "- *.png (visualization plots)"
