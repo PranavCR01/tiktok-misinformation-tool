@@ -47,17 +47,21 @@ def fast_whisper_transcribe(path: str) -> str:
 
 BASE_PROMPT = """You are a public-health fact-checking assistant.
 
-Given the transcript below, do three things:
+Given the transcript below, do these tasks and respond ONLY as JSON (no prose, no markdown):
 1) Choose exactly one label from this set:
    [NO_MISINFO, MISINFO, DEBUNKING, CANNOT_RECOGNIZE]
 2) Extract up to 10 keywords that summarize the content (list, not strings with commas).
 3) Provide a confidence score between 0 and 1.
+4) Provide a short explanation (2-4 sentences) describing why you chose that label.
+5) Provide 1-3 exact quotes from the transcript (verbatim sentences or clauses) that most influenced your decision.
 
-Respond ONLY as a single JSON object, no prose, in the form:
+Return a single JSON object with this shape:
 {
   "label": "DEBUNKING|MISINFO|NO_MISINFO|CANNOT_RECOGNIZE",
   "keywords": ["kw1","kw2", "..."],
-  "confidence": 0.87
+  "confidence": 0.87,
+  "explanation": "...",
+  "evidence_sentences": ["...", "..."]
 }
 """
 
@@ -98,7 +102,7 @@ def analyze_with_mistral(
 ):
     """
     Call local Ollama chat API with Mistral and return:
-    {label, keywords[], confidence, time_taken_secs}
+    {label, keywords[], confidence, explanation, evidence_sentences[], time_taken_secs}
 
     Uses non‑streaming responses to avoid JSONDecodeError from concatenated JSON.
     Includes a defensive fallback that can parse line-delimited JSON if needed.
@@ -190,6 +194,8 @@ def main():
         "label",
         "keywords",
         "confidence_score",
+        "explanation",
+        "evidence_sentences",
         "time_taken_sec",
     ]
     with open(out_csv, "w", newline="", encoding="utf-8") as f:
@@ -212,6 +218,8 @@ def main():
                 "label": r.get("label", "CANNOT_RECOGNIZE"),
                 "keywords": ";".join(r.get("keywords", [])),
                 "confidence_score": round(float(r.get("confidence", 0.0)), 2),
+                "explanation": r.get("explanation", ""),
+                "evidence_sentences": "|".join(r.get("evidence_sentences", [])),
                 "time_taken_sec": r.get("time_taken_secs"),
             }
             w.writerow(row)
