@@ -1,0 +1,7 @@
+input_dir: data/videos
+out: experiments/exp-003-phi3-baseline/results.csv
+prompt: baseline          # {baseline, fewshot, reasoned}
+model_name: phi3:mini       # ollama model name
+temperature: 0.0
+provider: Local           # use local ASR
+notes: "phi3 baseline prompt on current sample clips."

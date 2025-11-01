@@ -1,0 +1,7 @@
+input_dir: data/videos
+out: experiments/exp-002-llama-fewshot/results.csv
+prompt: baseline          # {baseline, fewshot, reasoned}
+model_name: llama3:8b-instruct-q4_K_M      # ollama model name
+temperature: 0.0
+provider: Local           # use local ASR
+notes: " Llama 3 baseline prompt on current sample clips."
