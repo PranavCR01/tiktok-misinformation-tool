@@ -1,0 +1,3 @@
+prompt_id,model_name,video_file,transcript,label,keywords,confidence_score,time_taken_sec
+enhanced_cot,mistral,ssstik.io_@healingartsapothecary_1761400198099.mp4,,DEBUNKING,Covid-19;Vaccine;Myth;Misinformation;False Claim,0.95,24.24
+enhanced_cot,mistral,ssstik.io_@healingartsapothecary_1761400302361.mp4,,DEBUNKING,Covid-19;Vaccine;Myth;Misinformation;False Claim,0.95,20.14
