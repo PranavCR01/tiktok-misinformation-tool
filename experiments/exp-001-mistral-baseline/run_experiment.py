@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Run script for Enhanced COT Misinformation Detection Experiment
+Run script for Baseline Mistral Misinformation Detection Experiment
 """
 
 import sys
@@ -8,7 +8,7 @@ import subprocess
 from pathlib import Path
 
 def main():
-    """Run the enhanced COT experiment"""
+    """Run the baseline experiment"""
     
     # Get the project root directory
     project_root = Path(__file__).resolve().parent.parent.parent
@@ -20,7 +20,7 @@ def main():
     config_file = Path(__file__).parent / "config.yaml"
     
     print("=" * 60)
-    print("Enhanced Chain of Thought Misinformation Detection Experiment")
+    print("Baseline Mistral Misinformation Detection Experiment")
     print("=" * 60)
     print(f"Project Root: {project_root}")
     print(f"Config File: {config_file}")
@@ -38,7 +38,7 @@ def main():
     
     # Run the experiment
     try:
-        print("Starting experiment...")
+        print("Starting baseline experiment...")
         print("This may take a while depending on the number of video files...")
         print()
         
@@ -48,14 +48,13 @@ def main():
         if result.returncode == 0:
             print()
             print("✅ Experiment completed successfully!")
-            print(f"Results saved to: experiments/exp-003-mistral-enhanced-cot/results.csv")
+            print(f"Results saved to: experiments/exp-001-mistral-baseline/results.csv")
             print()
             print("Next steps:")
-            print("1. Run analysis: python scripts/analyze_experiment.py experiments/exp-003-mistral-enhanced-cot/")
-            print("2. Compare with exp-002: Compare accuracy, confidence, and keyword quality")
+            print("1. Run analysis: python scripts/analyze_experiment.py --exp-dir experiments/exp-001-mistral-baseline --top-k 20")
+            print("2. Review results and compare with other experiments")
         else:
-            print()
-            print("❌ Experiment failed!")
+            print("\n❌ Experiment failed!")
             return result.returncode
             
     except KeyboardInterrupt:

@@ -29,7 +29,7 @@ def main():
 
     try:
         print("Starting few-shot experiment...\n")
-        cmd = [sys.executable, str(batch_script), str(config_file)]
+        cmd = [sys.executable, str(batch_script), "--config", str(config_file)]
         result = subprocess.run(cmd, cwd=project_root)
 
         if result.returncode == 0:
