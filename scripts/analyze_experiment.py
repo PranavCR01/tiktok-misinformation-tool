@@ -132,6 +132,27 @@ def main():
     else:
         kw_png = None
 
+    # Explainability stats (optional columns)
+    evidence_col = _safe_col(df, "evidence_sentences")
+    if evidence_col is not None:
+        evidence_counts = (
+            evidence_col.fillna("")
+            .astype(str)
+            .apply(lambda cell: len([s for s in cell.split("|") if s.strip()]))
+        )
+    else:
+        evidence_counts = pd.Series([], dtype="int64")
+
+    explanation_col = _safe_col(df, "explanation")
+    if explanation_col is not None:
+        explanation_lengths = (
+            explanation_col.fillna("")
+            .astype(str)
+            .apply(lambda cell: len(cell.split()))
+        )
+    else:
+        explanation_lengths = pd.Series([], dtype="int64")
+
     # simple stats
     stats = {
         "num_rows": n,
@@ -143,6 +164,12 @@ def main():
         "avg_latency_sec": round(float(lat.mean()), 2) if not lat.empty else "NA",
         "min_latency_sec": round(float(lat.min()), 2) if not lat.empty else "NA",
         "max_latency_sec": round(float(lat.max()), 2) if not lat.empty else "NA",
+        "avg_evidence_count": round(float(evidence_counts.mean()), 2)
+        if not evidence_counts.empty
+        else "NA",
+        "avg_explanation_words": round(float(explanation_lengths.mean()), 1)
+        if not explanation_lengths.empty
+        else "NA",
     }
 
     # write README.md
@@ -165,6 +192,8 @@ def main():
     - Label distribution: {stats['labels']}
     - Avg confidence: **{stats['avg_confidence']}**
     - Latency (sec) — avg: **{stats['avg_latency_sec']}**, min: {stats['min_latency_sec']}, max: {stats['max_latency_sec']}
+    - Avg evidence snippets per clip: {stats['avg_evidence_count']}
+    - Avg explanation length (words): {stats['avg_explanation_words']}
 
     ## Plots
     ![Label Distribution](./{label_png.name})
