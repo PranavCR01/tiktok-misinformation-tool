@@ -1,0 +1,7 @@
+input_dir: data/videos
+out: experiments/exp-003-gemma-fewshot/results.csv
+prompt: fewshot          # {baseline, fewshot, reasoned}
+model_name: gemma3:4b    # ollama model name
+temperature: 0.0
+provider: Local           # use local ASR
+notes: "Gemma fewshot prompt on current sample clips."
