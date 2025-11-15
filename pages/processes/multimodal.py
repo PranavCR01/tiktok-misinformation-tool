@@ -16,7 +16,7 @@ class MultimodalExtractor:
     Keeps both modalities separate but accessible in a unified structure.
     """
     
-    def __init__(self, ocr_languages=['en'], ocr_sample_fps=1.0, use_gpu=False):
+    def __init__(self, ocr_languages=['en', 'es'], ocr_sample_fps=1.0, use_gpu=False):
         """
         Initialize multimodal extractor.
         
@@ -130,7 +130,7 @@ def extract_multimodal_content(
     video_path: str,
     include_audio=True,
     include_visual=True,
-    ocr_languages=['en']
+    ocr_languages=['en', 'es']
 ) -> Dict:
     """
     Simple interface for multimodal extraction.
