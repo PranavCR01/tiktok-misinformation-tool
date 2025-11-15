@@ -17,7 +17,7 @@ class VideoTextExtractor:
     Designed to work independently without affecting existing modules.
     """
     
-    def __init__(self, languages=['en'], gpu=False):
+    def __init__(self, languages=['en', 'es'], gpu=False):
         """
         Initialize the OCR reader.
         
@@ -141,7 +141,7 @@ class VideoTextExtractor:
 # Convenience function for simple use cases
 def extract_text_from_video_simple(
     video_path: str, 
-    languages=['en'], 
+    languages=['en', 'es'], 
     sample_fps=1.0
 ) -> str:
     """

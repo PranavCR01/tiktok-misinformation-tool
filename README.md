@@ -22,7 +22,36 @@ It combines:
 
 - **Experimentation framework** for systematic evaluation of prompts, models, and settings.
 
+- **Multi-language support** for both audio transcription and on-screen text extraction.
 
+
+
+## Language Support
+
+The tool now supports **multiple languages** for comprehensive video analysis:
+
+### Audio Transcription (Whisper)
+- **Automatic language detection** – Whisper automatically detects the spoken language
+- Supports **99+ languages** including English, Spanish, French, German, Chinese, and more
+- No configuration needed – works out of the box for any language
+
+### On-Screen Text (OCR)
+- **Default languages**: English and Spanish (`['en', 'es']`)
+- Powered by EasyOCR for accurate text detection
+- Can detect multiple languages in the same video
+- Easily extensible – add more language codes as needed (e.g., `['en', 'es', 'zh']` for Chinese)
+
+### Usage
+For most users, **no changes are required** – the system will automatically:
+1. Detect and transcribe audio in any language (via Whisper)
+2. Extract on-screen text in English and Spanish (via EasyOCR)
+
+To add more OCR languages, update `ocr_languages` in your experiment config:
+```yaml
+ocr_languages: ['en', 'es', 'fr']  # Add French
+```
+
+---
 
 >  Important: We have **not changed the original structure** of the app.
 

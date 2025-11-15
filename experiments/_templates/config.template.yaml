@@ -18,3 +18,13 @@ notes: "Brief description of experiment goals"
 # - 0.0: Reproducible, deterministic (recommended for experiments)
 # - 0.3-0.7: Balanced creativity
 # - 1.0+: More creative but less consistent
+
+# Multimodal Settings (for multimodal batch experiments):
+include_audio: true              # Extract speech transcript (Whisper auto-detects language)
+include_visual: true             # Extract on-screen text using OCR
+ocr_languages: ['en', 'es']      # OCR language detection (English + Spanish)
+ocr_sample_fps: 1.0              # Frame sampling rate for OCR (1.0 = 1 frame/second)
+
+# Language Support:
+# - Audio: Whisper automatically detects language (supports 99+ languages including English and Spanish)
+# - OCR: EasyOCR supports multiple languages; add language codes as needed (e.g., ['en', 'es', 'zh'])

@@ -125,7 +125,7 @@ def main():
     # NEW: Multimodal options
     include_audio = cfg.get("include_audio", True)
     include_visual = cfg.get("include_visual", True)
-    ocr_languages = cfg.get("ocr_languages", ["en"])
+    ocr_languages = cfg.get("ocr_languages", ["en", "es"])
     ocr_sample_fps = float(cfg.get("ocr_sample_fps", 1.0))
 
     Path(out_csv).parent.mkdir(parents=True, exist_ok=True)
