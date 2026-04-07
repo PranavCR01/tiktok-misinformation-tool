@@ -1,3 +1,5 @@
+#pages/processes/ocr/text_extractor.py
+
 """
 OCR Text Extraction Module
 Extracts on-screen text from video frames using EasyOCR.

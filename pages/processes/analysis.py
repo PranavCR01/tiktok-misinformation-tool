@@ -8,7 +8,6 @@ import streamlit as st
 # tiktoken only for token warnings; optional
 try:
     import tiktoken
-
     _HAS_TIKTOKEN = True
 except Exception:
     _HAS_TIKTOKEN = False
@@ -48,28 +47,29 @@ def _extract_json_block(text: str) -> dict:
             "evidence_sentences": [],
         }
 
-    for match in re.finditer(r"\{.*\}", text, flags=re.DOTALL):
+    # Strip common code fences if present
+    cleaned = text.strip()
+    cleaned = re.sub(r"^```(?:json)?\s*", "", cleaned, flags=re.IGNORECASE)
+    cleaned = re.sub(r"\s*```$", "", cleaned)
+
+    for match in re.finditer(r"\{.*\}", cleaned, flags=re.DOTALL):
         try:
             obj = json.loads(match.group(0))
-            label = (
-                str(obj.get("label", "CANNOT_RECOGNIZE")).strip().upper().rstrip(".")
-            )
+            label = str(obj.get("label", "CANNOT_RECOGNIZE")).strip().upper().rstrip(".")
             kws = obj.get("keywords", [])
             if isinstance(kws, str):
                 kws = [k.strip() for k in kws.split(",") if k.strip()]
             conf = float(obj.get("confidence", 0.5))
             explanation = str(obj.get("explanation", "")).strip()
+
             evidence_raw = obj.get("evidence_sentences", [])
             if isinstance(evidence_raw, str):
-                evidence = [
-                    item.strip()
-                    for item in evidence_raw.split("\n")
-                    if item.strip()
-                ]
+                evidence = [item.strip() for item in evidence_raw.split("\n") if item.strip()]
             elif isinstance(evidence_raw, list):
                 evidence = [str(item).strip() for item in evidence_raw if str(item).strip()]
             else:
                 evidence = []
+
             return {
                 "label": label,
                 "keywords": kws,
@@ -111,18 +111,15 @@ def _token_limit_warning(transcript: str, model: str, container):
             expanded=False,
         )
     else:
-        container.update(
-            label="Token Usage within Model Limit", state="running", expanded=True
-        )
+        container.update(label="Token Usage within Model Limit", state="running", expanded=True)
 
 
 # ---------- OpenAI (hosted) ----------
 
-
 def analyze(transcript, model, client, container):
     """
     Uses OpenAI Chat Completions.
-    Returns dict: {label, keywords[], confidence, time_taken_secs}
+    Returns dict: {label, keywords[], confidence, explanation, evidence_sentences, time_taken_secs}
     """
     _token_limit_warning(transcript, model, container)
 
@@ -133,9 +130,7 @@ def analyze(transcript, model, client, container):
 
     start = time.time()
     try:
-        resp = client.chat.completions.create(
-            model=model, messages=chat_sequence, temperature=0
-        )
+        resp = client.chat.completions.create(model=model, messages=chat_sequence, temperature=0)
         content = resp.choices[0].message.content
     except Exception as e:
         st.error(f"Analysis failed: {e}")
@@ -153,14 +148,12 @@ def analyze(transcript, model, client, container):
     return result
 
 
-# ---------- Azure OpenAI (deployment name passed as `model`) ----------
-
+# ---------- Azure OpenAI ----------
 
 def analyze2(transcript, client, container, model):
     """
     Uses Azure OpenAI Chat Completions.
     `model` here is your deployment name.
-    Returns dict: {label, keywords[], confidence, time_taken_secs}
     """
     chat_sequence = [
         {"role": "system", "content": _JSON_INSTRUCTIONS},
@@ -169,9 +162,7 @@ def analyze2(transcript, client, container, model):
 
     start = time.time()
     try:
-        resp = client.chat.completions.create(
-            model=model, messages=chat_sequence, temperature=0
-        )
+        resp = client.chat.completions.create(model=model, messages=chat_sequence, temperature=0)
         content = resp.choices[0].message.content
     except Exception as e:
         st.error(f"Analysis failed: {e}")
@@ -189,21 +180,17 @@ def analyze2(transcript, client, container, model):
     return result
 
 
-# ---------- Ollama (local Mistral) ----------
-
+# ---------- Ollama (local) ----------
 
 def analyze_local_mistral(transcript: str, container, model_name: str = "mistral"):
     """
-    Calls local Ollama (http://localhost:11434) chat API with Mistral and returns:
-    {label, keywords[], confidence, explanation, evidence_sentences[], time_taken_secs}
+    Calls local Ollama (http://localhost:11434) chat API and returns JSON fields.
     """
     start = time.time()
     try:
         import requests
     except Exception:
-        st.error(
-            "The 'requests' package is required for Ollama calls. pip install requests"
-        )
+        st.error("The 'requests' package is required for Ollama calls. pip install requests")
         return {
             "label": "CANNOT_RECOGNIZE",
             "keywords": [],
@@ -221,24 +208,20 @@ def analyze_local_mistral(transcript: str, container, model_name: str = "mistral
             {"role": "user", "content": transcript},
         ],
         "options": {"temperature": 0.0},
-        "stream": False,  # ensure a single JSON response (non-streaming)
+        "stream": False,
     }
     try:
         r = requests.post(url, json=body, timeout=120)
         r.raise_for_status()
 
         data = r.json()
-        content = (
-            data.get("message", {}).get("content", "")
-            if isinstance(data, dict)
-            else str(data)
-        )
+        content = data.get("message", {}).get("content", "") if isinstance(data, dict) else str(data)
 
         result = _extract_json_block(content)
         result["time_taken_secs"] = round(time.time() - start, 2)
         return result
     except Exception as e:
-        st.error(f"Ollama (Mistral) call failed: {e}")
+        st.error(f"Ollama call failed: {e}")
         return {
             "label": "CANNOT_RECOGNIZE",
             "keywords": [],

@@ -1,0 +1,22 @@
+# Top-level dependencies only — let pip resolve all transitive packages.
+# Use this file instead of requirements.txt on Python 3.11+ / Windows.
+
+streamlit
+openai
+faster-whisper
+moviepy
+spacy
+easyocr
+pandas
+matplotlib
+plotly
+scikit-learn
+requests
+pyyaml
+tiktoken
+pyvis
+selenium
+ffmpeg-python
+contractions
+jsonpickle
+pytube
